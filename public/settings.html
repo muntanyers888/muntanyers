@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuració - muntanyers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">🏔️ muntanyers</h1>
+                <nav class="nav">
+                    <a href="/feed" class="nav-link">🏠 Feed</a>
+                    <a href="/profile" class="nav-link">👤 Perfil</a>
+                    <a href="/users" class="nav-link">🔍 Descobrir</a>
+                    <a href="/notifications" class="nav-link">🔔</a>
+                    <a href="/settings" class="nav-link active">⚙️</a>
+                    <button id="logoutBtn" class="btn btn-outline">Sortir</button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-settings">
+            <div class="settings-container">
+                <h2>Configuració del compte</h2>
+                
+                <!-- Perfil -->
+                <div class="settings-section">
+                    <h3>📝 Perfil</h3>
+                    <form id="profileForm" class="settings-form">
+                        <!-- 👇 CANVIA AQUESTA PART - ELIMINA EL FORM INTERIOR -->
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="avatarPreview">
+                                <img id="currentAvatarImg" src="" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: none;">
+                                <div class="user-avatar" id="currentAvatarFallback">🧗</div>
+                            </div>
+                            <!-- 👇 ELIMINA EL <form> I DEIXA NOMÉS EL INPUT I BOTÓ -->
+                            <input type="file" id="avatarUpload" name="avatar" accept="image/*" style="display: none;">
+                            <button type="button" id="changeAvatarBtn" class="btn btn-outline">Canviar avatar</button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username">Nom d'usuari *</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bio">Biografia</label>
+                            <textarea id="bio" name="bio" rows="3" placeholder="Explica alguna cosa sobre tu..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="privateAccount" name="private">
+                                <span class="checkmark"></span>
+                                Compte privat
+                            </label>
+                            <small>Els nous seguidors necessitaran la teva aprovació</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Guardar canvis</button>
+                    </form>
+                </div>
+
+                <!-- Seguretat -->
+                <div class="settings-section">
+                    <h3>🔒 Seguretat</h3>
+                    <form id="passwordForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="currentPassword">Contrasenya actual</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">Nova contrasenya</label>
+                            <input type="password" id="newPassword" required minlength="6">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Repetir nova contrasenya</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Canviar contrasenya</button>
+                    </form>
+                </div>
+
+                <!-- Eliminar compte -->
+                <div class="settings-section danger-zone">
+                    <h3>🚨 Zona perillosa</h3>
+                    <div class="danger-content">
+                        <p>Una vegada eliminis el teu compte, no es podrà recuperar. Totes les teves dades s'eliminaran permanentment.</p>
+                        <button type="button" id="deleteAccountBtn" class="btn btn-danger">Eliminar compte</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modal eliminar compte -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <h3>⚠️ Eliminar compte</h3>
+                <p>Estàs segur que vols eliminar el teu compte? Aquesta acció no es pot desfer.</p>
+                <form id="deleteForm">
+                    <div class="form-group">
+                        <label for="deletePassword">Introdueix la teva contrasenya per confirmar:</label>
+                        <input type="password" id="deletePassword" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancelDelete" class="btn btn-outline">Cancel·lar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar compte</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

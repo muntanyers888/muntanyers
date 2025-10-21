@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificacions - muntanyers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">🏔️ muntanyers</h1>
+                <nav class="nav">
+    <a href="/feed" class="nav-link">🏠 Feed</a>
+    <a href="/profile" class="nav-link">👤 Perfil</a>
+    <a href="/users" class="nav-link">🔍 Descobrir</a>
+    <a href="/notifications" class="nav-link active">🔔</a>
+    <a href="/settings" class="nav-link">⚙️</a>
+    <button id="logoutBtn" class="btn btn-outline">Sortir</button>
+</nav>
+            </div>
+        </header>
+
+        <main class="main-notifications">
+            <div class="notifications-container">
+                <div class="notifications-header">
+                    <h2>🔔 Notificacions</h2>
+                    <button id="markAllRead" class="btn btn-outline">Marcar tot com a llegit</button>
+                </div>
+
+                <div class="notifications-list" id="notificationsList">
+                    <div class="loading">Carregant notificacions...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

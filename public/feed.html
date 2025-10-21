@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed - muntanyers</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">🏔️ muntanyers</h1>
+                <nav class="nav">
+    <a href="/feed" class="nav-link active">🏠 Feed</a>
+    <a href="/profile" class="nav-link">👤 Perfil</a>
+    <a href="/users" class="nav-link">🔍 Descobrir</a>
+    <a href="/notifications" class="nav-link">🔔</a>
+    <a href="/settings" class="nav-link">⚙️</a>
+    <button id="logoutBtn" class="btn btn-outline">Sortir</button>
+</nav>
+            </div>
+        </header>
+
+        <main class="main-feed">
+            <div class="feed-container">
+                <!-- Crear Post -->
+                <div class="create-post-card">
+                    <div class="post-creator">
+                        <div class="user-avatar-small" id="currentUserAvatar">🧗</div>
+                        <div class="post-inputs">
+                            <textarea id="postContent" placeholder="Comparteix la teva aventura..." rows="3"></textarea>
+                            <div class="post-options">
+                                <div class="media-buttons">
+                                    <button type="button" class="media-btn active" data-type="text">📝 Text</button>
+                                    <button type="button" class="media-btn" data-type="image">🖼️ Imatge</button>
+                                    <button type="button" class="media-btn" data-type="video">🎥 Video</button>
+                                </div>
+                                <div class="media-preview" id="mediaPreview"></div>
+                                <div class="post-actions">
+                                    <input type="file" id="mediaUpload" accept="image/*,video/*" style="display: none;">
+                                    <button type="button" id="uploadMediaBtn" class="btn btn-outline">📎 Afegir Media</button>
+                                    <button type="button" id="publishPostBtn" class="btn btn-primary">Publicar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed de Posts -->
+                <div class="feed" id="feedPosts">
+                    <div class="loading">Carregant aventures...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
