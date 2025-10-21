@@ -30,11 +30,6 @@ app.use(session({
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// Crear carpetes per a uploads
-if (!fs.existsSync('public/uploads')) {
-  fs.mkdirSync('public/uploads', { recursive: true });
-}
-
 // Inicialitzar base de dades
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS users (
