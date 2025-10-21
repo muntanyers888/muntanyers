@@ -712,6 +712,160 @@ app.get('/api/users/search/:query', requireAuth, async (req, res) => {
   }
 });
 
+// ===== RUTES D'AVATAR (AFEGIR A server.js) =====
+
+// API: Pujar avatar
+app.post('/api/user/avatar', requireAuth, async (req, res) => {
+  try {
+    // En una implementació real, aquí pujaries la imatge a un servei d'emmagatzematge
+    // Per ara, simulem l'actualització amb una URL fictícia
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(req.session.username)}&background=1a936f&color=fff&size=150`;
+    
+    await pool.query(
+      'UPDATE users SET avatar_url = $1 WHERE id = $2',
+      [avatarUrl, req.session.userId]
+    );
+    
+    res.json({ 
+      success: true, 
+      avatarUrl: avatarUrl 
+    });
+  } catch (error) {
+    console.error('Error actualitzant avatar:', error);
+    res.status(500).json({ error: 'Error actualitzant avatar' });
+  }
+});
+
+// API: Obtenir avatar
+app.get('/api/user/avatar', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT avatar_url FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+    
+    if (result.rows.length > 0) {
+      res.json({ avatarUrl: result.rows[0].avatar_url });
+    } else {
+      res.json({ avatarUrl: null });
+    }
+  } catch (error) {
+    console.error('Error obtenint avatar:', error);
+    res.status(500).json({ error: 'Error obtenint avatar' });
+  }
+});
+
+// ===== CORRECCIÓ DE PROBLEMES DE DATES =====
+
+// API: Obtenir posts del feed (versió corregida)
+app.get('/api/feed', requireAuth, async (req, res) => {
+  try {
+    const query = `
+      SELECT p.*, u.username, u.avatar_url,
+      EXISTS(SELECT 1 FROM likes WHERE likes.post_id = p.id AND likes.user_id = $1) as user_has_liked,
+      (SELECT COUNT(*) FROM likes WHERE likes.post_id = p.id) as likes_count,
+      (SELECT COUNT(*) FROM comments WHERE comments.post_id = p.id) as comments_count
+      FROM posts p 
+      JOIN users u ON p.user_id = u.id 
+      ORDER BY p.timestamp DESC 
+      LIMIT 50
+    `;
+    
+    const result = await pool.query(query, [req.session.userId]);
+    
+    // Convertir les dates a format compatible
+    const posts = result.rows.map(post => ({
+      ...post,
+      timestamp: post.timestamp ? new Date(post.timestamp).toISOString() : new Date().toISOString()
+    }));
+    
+    res.json(posts);
+  } catch (error) {
+    console.error('Error obtenint feed:', error);
+    res.status(500).json({ error: 'Error intern del servidor' });
+  }
+});
+
+// API: Obtenir comentaris (versió corregida)
+app.get('/api/posts/:postId/comments', requireAuth, async (req, res) => {
+  const postId = req.params.postId;
+  
+  try {
+    const query = `
+      SELECT c.*, u.username, u.id as user_id
+      FROM comments c 
+      JOIN users u ON c.user_id = u.id 
+      WHERE c.post_id = $1 
+      ORDER BY c.created_at ASC
+    `;
+    
+    const result = await pool.query(query, [postId]);
+    
+    // Convertir les dates
+    const comments = result.rows.map(comment => ({
+      ...comment,
+      created_at: comment.created_at ? new Date(comment.created_at).toISOString() : new Date().toISOString()
+    }));
+    
+    res.json(comments);
+  } catch (error) {
+    console.error('Error obtenint comentaris:', error);
+    res.status(500).json({ error: 'Error intern del servidor' });
+  }
+});
+
+// ===== RUTES ADICIONALS PER AL PERFIL =====
+
+// API: Obtenir seguidors
+app.get('/api/user/followers', requireAuth, async (req, res) => {
+  try {
+    const query = `
+      SELECT u.id, u.username, u.avatar_url, u.bio
+      FROM followers f
+      JOIN users u ON f.follower_id = u.id
+      WHERE f.following_id = $1 AND f.status = 'accepted'
+    `;
+    
+    const result = await pool.query(query, [req.session.userId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error obtenint seguidors:', error);
+    res.status(500).json({ error: 'Error intern del servidor' });
+  }
+});
+
+// API: Obtenir seguint
+app.get('/api/user/following', requireAuth, async (req, res) => {
+  try {
+    const query = `
+      SELECT u.id, u.username, u.avatar_url, u.bio
+      FROM followers f
+      JOIN users u ON f.following_id = u.id
+      WHERE f.follower_id = $1 AND f.status = 'accepted'
+    `;
+    
+    const result = await pool.query(query, [req.session.userId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error obtenint seguint:', error);
+    res.status(500).json({ error: 'Error intern del servidor' });
+  }
+});
+
+// ===== MILLORA DEL FORMAT DE DATES =====
+
+// Funció auxiliar per formatar dates consistentment
+function formatDateForClient(dateString) {
+  if (!dateString) return new Date().toISOString();
+  
+  try {
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+  } catch (error) {
+    return new Date().toISOString();
+  }
+}
+
 // ✅ MANEJADOR D'ERRORS GLOBAL
 app.use((err, req, res, next) => {
   console.error('❌ Error del servidor:', err);

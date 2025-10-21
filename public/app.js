@@ -1072,32 +1072,33 @@ function formatDate(dateString) {
     
     console.log('Data original:', dateString); // Debug
     
-    // Intentar parsejar la data
+    // Intentar parsejar la data de diverses maneres
     let date = new Date(dateString);
     
-    // Si falla el parsing, tornar "Data desconeguda"
+    // Si falla el parsing, provar amb altres formats
     if (isNaN(date.getTime())) {
-        return 'Data desconeguda';
+        // Intentar amb format PostgreSQL
+        date = new Date(dateString.replace(' ', 'T'));
+        if (isNaN(date.getTime())) {
+            return 'Data desconeguda';
+        }
     }
     
     const now = new Date();
     const diffMs = now - date;
-    const diffMins = Math.round(diffMs / 60000); // Minuts
-    const diffHours = Math.round(diffMs / 3600000); // Hores
+    const diffMins = Math.round(diffMs / 60000);
+    const diffHours = Math.round(diffMs / 3600000);
+    const diffDays = Math.round(diffMs / 86400000);
     
     console.log('Diferència en minuts:', diffMins); // Debug
-    
-    // Si la diferència és negativa (problema de zona horària), ajustar
-    if (diffMins < 0) {
-        return 'Ara mateix';
-    }
     
     if (diffMins < 1) return 'Ara mateix';
     if (diffMins < 60) return `Fa ${diffMins} min`;
     if (diffHours < 24) return `Fa ${diffHours} h`;
-    if (diffHours < 168) return `Fa ${Math.round(diffHours / 24)} d`;
+    if (diffDays < 7) return `Fa ${diffDays} d`;
+    if (diffDays < 30) return `Fa ${Math.round(diffDays / 7)} set`;
     
-    // Més d'una setmana - mostrar data completa
+    // Més d'un mes - mostrar data completa
     return date.toLocaleDateString('ca-ES', {
         day: 'numeric',
         month: 'short',
