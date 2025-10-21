@@ -11,43 +11,14 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 // Força SQLite a utilitzar data/hora en format local
-const db = new sqlite3.Database('muntanyers.db', (err) => {
-    if (err) {
-        console.error('Error obrint base de dades:', err);
-    } else {
-        // Configura SQLite per dates locals
-        db.run("PRAGMA foreign_keys = ON");
-        db.run("PRAGMA encoding = 'UTF-8'");
-    }
-});
-
-// Configuració de Multer per a pujar arxius
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = 'public/uploads/avatars';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    // Nom únic: userid-timestamp.extensio
-    const uniqueName = `avatar-${req.session.userId}-${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: function (req, file, cb) {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Només es permeten imatges'));
-    }
-  }
-});
+let db;
+try {
+  db = new sqlite3.Database(':memory:'); // 👈 AQUEST CANVI
+  console.log('✅ Base de dades en memòria inicialitzada');
+} catch (error) {
+  console.error('❌ Error inicialitzant base de dades:', error);
+  // Fallback sense base de dades
+}
 
 // Middleware
 app.use(express.static('public'));
@@ -132,6 +103,15 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
+// ✅ RUTA DE PROVA PER VERCEL
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'muntanyers funcionant a Vercel!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Rutes de pàgines (mantenir les existents)
 app.get('/', (req, res) => {
   if (req.session.userId) {
@@ -167,41 +147,7 @@ app.get('/users', requireAuth, (req, res) => {
 app.get('/notifications', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'notifications.html'));
 });
-
-// APIs existents (mantenir)...
-
-// === NOVES APIs ===
-// === NOVA API: Pujar avatar ===
-app.post('/api/user/avatar', requireAuth, upload.single('avatar'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Cap arxiu pujat' });
-  }
-
-  const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-  
-  // Eliminar avatar anterior si existeix
-  db.get('SELECT avatar_url FROM users WHERE id = ?', [req.session.userId], (err, user) => {
-    if (!err && user.avatar_url && user.avatar_url.startsWith('/uploads/avatars/')) {
-      const oldAvatarPath = path.join(__dirname, 'public', user.avatar_url);
-      if (fs.existsSync(oldAvatarPath)) {
-        fs.unlinkSync(oldAvatarPath);
-      }
-    }
-    
-    // Actualitzar base de dades
-    db.run(
-      'UPDATE users SET avatar_url = ? WHERE id = ?',
-      [avatarUrl, req.session.userId],
-      function(err) {
-        if (err) {
-          return res.status(400).json({ error: err.message });
-        }
-        res.json({ success: true, avatarUrl: avatarUrl });
-      }
-    );
-  });
-});
-
+//
 // API: Obtenir perfil d'usuari
 app.get('/api/users/:username', requireAuth, (req, res) => {
   const username = req.params.username;
@@ -784,6 +730,15 @@ app.delete('/api/posts/:postId', requireAuth, (req, res) => {
     });
     
     res.json({ success: true });
+  });
+});
+
+// ✅ MANEJADOR D'ERRORS GLOBAL
+app.use((err, req, res, next) => {
+  console.error('❌ Error del servidor:', err);
+  res.status(500).json({ 
+    error: 'Error intern del servidor',
+    message: err.message 
   });
 });
 
