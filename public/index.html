@@ -3,73 +3,879 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>muntanyers - Comparteix les teves aventures</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Xarxa Social - Terminal a Vercel</title>
+    <style>
+        /* RESET COMPLET */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, 
+        figure, figcaption, footer, header, hgroup, 
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+
+        :root {
+            --primary: #1a936f;
+            --primary-dark: #166c54;
+            --secondary: #88d498;
+            --accent: #c6dabf;
+            --background: #f3e9d2;
+            --surface: #ffffff;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+            --border: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, var(--background) 0%, #f8f4e9 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0.25rem 0;
+        }
+
+        .nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Botons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Pàgina Principal */
+        .background-mountains {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        .main {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h2 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Preview Card */
+        .hero-preview {
+            display: flex;
+            justify-content: center;
+        }
+
+        .preview-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            width: 300px;
+            transform: rotate(2deg);
+            transition: transform 0.3s ease;
+        }
+
+        .preview-card:hover {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .preview-header {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info strong {
+            font-size: 0.9rem;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .preview-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mountain-preview {
+            font-size: 4rem;
+        }
+
+        .preview-actions {
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Features */
+        .features {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        /* Feed */
+        .main-feed {
+            margin-top: 80px;
+            padding: 2rem 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        .feed-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Crear Post */
+        .create-post-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .post-creator {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .user-avatar-small {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            color: var(--text);
+        }
+
+        .post-inputs {
+            flex: 1;
+        }
+
+        .post-inputs textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .post-inputs textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .media-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .media-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .media-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .media-preview {
+            margin-bottom: 1rem;
+            min-height: 60px;
+        }
+
+        .media-preview img,
+        .media-preview video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius);
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        /* Posts */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .post-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .post-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        .post-header-info {
+            flex: 1;
+        }
+
+        .post-user {
+            font-weight: 600;
+        }
+
+        .post-time {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .post-content {
+            padding: 1rem 1.5rem;
+        }
+
+        .post-text {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .post-media {
+            margin: 1rem 0;
+        }
+
+        .post-media img,
+        .post-media video {
+            width: 100%;
+            border-radius: 8px;
+            max-height: 500px;
+            object-fit: cover;
+        }
+
+        .post-actions-bar {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .post-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .post-action:hover {
+            color: var(--primary);
+        }
+
+        /* Nav Links */
+        .nav-link {
+            padding: 0.5rem 0.75rem;
+            text-decoration: none;
+            color: var(--text);
+            border-radius: var(--radius);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .nav-link:hover:not(.active) {
+            background: var(--accent);
+            border-color: var(--border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 2rem 1rem;
+            }
+            
+            .hero-content h2 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .nav {
+                width: 100%;
+                justify-content: center;
+                gap: 0.25rem;
+            }
+            
+            .nav-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.85rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .cta-buttons {
+                justify-content: center;
+            }
+        }
+
+        /* Pàgines addicionals */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+
+        .no-posts {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 2px dashed var(--border);
+        }
+    </style>
 </head>
 <body>
-    <div class="app">
-        <div class="background-mountains"></div>
-        
-        <header class="header">
-            <div class="container">
-                <h1 class="logo">🏔️ muntanyers</h1>
-                <nav class="nav">
-                    <button id="authBtn" class="btn btn-primary">Començar Aventura</button>
-                </nav>
-            </div>
-        </header>
+    <!-- Fons decoratiu -->
+    <div class="background-mountains"></div>
 
-        <main class="main">
-            <div class="hero">
-                <div class="hero-content">
-                    <h2>On les muntanyes es troben</h2>
-                    <p>Comparteix les teves rutes, descobreix noves cims i connecta amb altres amants de la muntanya</p>
-                    <div class="cta-buttons">
-                        <button id="exploreBtn" class="btn btn-large">Explorar Aventures</button>
-                        <button id="joinBtn" class="btn btn-large btn-outline">Unir-te a la Comunitat</button>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="#" class="logo" onclick="showPage('home')">MountainSocial</a>
+            <nav class="nav">
+                <a href="#" class="nav-link active" onclick="showPage('home')">Inici</a>
+                <a href="#" class="nav-link" onclick="showPage('feed')">Feed</a>
+                <a href="#" class="nav-link" onclick="showPage('profile')">Perfil</a>
+                <a href="#" class="btn btn-outline" onclick="showPage('login')">Iniciar Sessió</a>
+                <a href="#" class="btn btn-primary" onclick="showPage('register')">Registrar-se</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Pàgina d'Inici -->
+    <main class="main page active" id="home">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Connecta amb la natura i la comunitat</h2>
+                <p>Descobreix i comparteix les teves aventures a la muntanya amb amants de la natura de tot el món.</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary btn-large" onclick="showPage('register')">Comença Ara</a>
+                    <a href="#" class="btn btn-outline btn-large" onclick="showPage('feed')">Explora</a>
+                </div>
+            </div>
+            <div class="hero-preview">
+                <div class="preview-card">
+                    <div class="preview-header">
+                        <div class="user-avatar">🌲</div>
+                        <div class="user-info">
+                            <strong>Explorador</strong>
+                            <span>@naturelover</span>
+                        </div>
+                    </div>
+                    <div class="preview-image">
+                        <div class="mountain-preview">⛰️</div>
+                    </div>
+                    <div class="preview-actions">
+                        <span>❤️ 42</span>
+                        <span>💬 12</span>
+                        <span>↗️ 5</span>
                     </div>
                 </div>
-                
-                <div class="hero-preview">
-                    <div class="preview-card">
-                        <div class="preview-header">
-                            <div class="user-avatar">🧗</div>
-                            <div class="user-info">
-                                <strong>alex_muntanya</strong>
-                                <span>Pic de l'Estany</span>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>Descobreix Rutes</h3>
+                <p>Troba i comparteix les millors rutes de senderisme amb la comunitat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Connecta</h3>
+                <p>Troba companys d'aventura i uneix-te a grups d'excursionisme.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <h3>Comparteix</h3>
+                <p>Puja les teves fotos i experiències per inspirar als altres.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Assoliments</h3>
+                <p>Guanya insígnies i reconeixement per les teves aventures.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pàgina de Feed -->
+    <main class="main-feed page" id="feed">
+        <div class="feed-container">
+            <div class="create-post-card">
+                <div class="post-creator">
+                    <div class="user-avatar-small">👤</div>
+                    <div class="post-inputs">
+                        <textarea placeholder="Què estàs pensant? Comparteix la teva aventura..."></textarea>
+                        <div class="media-buttons">
+                            <button class="media-btn">📷 Foto</button>
+                            <button class="media-btn">🎥 Vídeo</button>
+                            <button class="media-btn">📍 Ubicació</button>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn btn-primary">Publicar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feed">
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="user-avatar">🏔️</div>
+                        <div class="post-header-info">
+                            <div class="post-user">Aventurer Català</div>
+                            <div class="post-time">Fa 2 hores</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-text">
+                            Acabat de pujar al Pedraforca! Vistes espectaculars i un dia perfecte per l'excursió. 
+                            ⛰️✨ #Pedraforca #Natura #Catalunya
+                        </div>
+                        <div class="post-media">
+                            <div style="height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                🏔️
                             </div>
                         </div>
-                        <div class="preview-image">
-                            <div class="mountain-preview">🏔️</div>
+                    </div>
+                    <div class="post-actions-bar">
+                        <div class="post-stats">
+                            <span>❤️ 24</span>
+                            <span>💬 8</span>
                         </div>
-                        <div class="preview-actions">
-                            <span>❤️ 124</span>
-                            <span>💬 23</span>
+                        <div class="post-action-buttons">
+                            <button class="post-action">❤️ M'agrada</button>
+                            <button class="post-action">💬 Comentar</button>
+                            <button class="post-action">↗️ Compartir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="user-avatar">🌅</div>
+                        <div class="post-header-info">
+                            <div class="post-user">Amant dels Amaneixers</div>
+                            <div class="post-time">Ahir</div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-text">
+                            Cap de creu a Montserrat per veure l'amanixer. Val la pena llevar-se d'hora! 
+                            🌅 #Montserrat #Amanixer #Excursions
+                        </div>
+                    </div>
+                    <div class="post-actions-bar">
+                        <div class="post-stats">
+                            <span>❤️ 42</span>
+                            <span>💬 15</span>
+                        </div>
+                        <div class="post-action-buttons">
+                            <button class="post-action">❤️ M'agrada</button>
+                            <button class="post-action">💬 Comentar</button>
+                            <button class="post-action">↗️ Compartir</button>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">📸</div>
-                    <h3>Comparteix Fotos</h3>
-                    <p>Puja les teves millors captures de les muntanyes</p>
+    <!-- Pàgina de Perfil -->
+    <main class="main-profile page" id="profile">
+        <div class="profile-container">
+            <div class="profile-header-card">
+                <div class="profile-info">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-details">
+                        <h2>El Teu Nom</h2>
+                        <p class="profile-bio">Aventurer i amant de la natura | Excursionista apassionat</p>
+                        <p class="join-date">💚 Membre des de març 2024</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎥</div>
-                    <h3>Comparteix Videos</h3>
-                    <p>Mostra les teves aventures en moviment</p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-number">24</span>
+                        <span class="stat-label">Publicacions</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">156</span>
+                        <span class="stat-label">Seguidors</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">89</span>
+                        <span class="stat-label">Seguint</span>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>Connecta</h3>
-                    <p>Troba altres muntanyencs amb les teves passions</p>
+                <div class="profile-actions">
+                    <button class="btn btn-outline">Editar Perfil</button>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script src="app.js"></script>
+            <div class="profile-posts-section">
+                <h3>Les meves publicacions</h3>
+                <div class="profile-posts">
+                    <div class="profile-post-card">
+                        <div class="profile-post-media">🏔️</div>
+                        <div class="profile-post-content">
+                            <p class="profile-post-text">Gran dia al Pedraforca!</p>
+                            <p class="profile-post-time">Fa 2 dies</p>
+                        </div>
+                    </div>
+                    <div class="profile-post-card">
+                        <div class="profile-post-media">🌲</div>
+                        <div class="profile-post-content">
+                            <p class="profile-post-text">Bosc màgic a les Guilleries</p>
+                            <p class="profile-post-time">Fa 1 setmana</p>
+                        </div>
+                    </div>
+                    <div class="profile-post-card">
+                        <div class="profile-post-media">🏞️</div>
+                        <div class="profile-post-content">
+                            <p class="profile-post-text">Vistes des del Puigmal</p>
+                            <p class="profile-post-time">Fa 2 setmanes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pàgina de Login -->
+    <main class="main page" id="login">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Iniciar Sessió</h2>
+                <form class="auth-form">
+                    <input type="text" placeholder="Nom d'usuari o email" required>
+                    <input type="password" placeholder="Contrasenya" required>
+                    <button type="submit" class="btn btn-primary">Iniciar Sessió</button>
+                </form>
+                <div class="auth-switch">
+                    <p>No tens compte? <a href="#" onclick="showPage('register')">Registra't</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pàgina de Registre -->
+    <main class="main page" id="register">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Registrar-se</h2>
+                <form class="auth-form">
+                    <input type="text" placeholder="Nom complet" required>
+                    <input type="text" placeholder="Nom d'usuari" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Contrasenya" required>
+                    <button type="submit" class="btn btn-primary">Crear Compte</button>
+                </form>
+                <div class="auth-switch">
+                    <p>Ja tens compte? <a href="#" onclick="showPage('login')">Inicia sessió</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Funció per canviar de pàgina
+        function showPage(pageId) {
+            // Amaga totes les pàgines
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Mostra la pàgina seleccionada
+            document.getElementById(pageId).classList.add('active');
+            
+            // Actualitza la navegació activa
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Marca el link corresponent com a actiu (si existeix)
+            const activeLink = document.querySelector(`.nav-link[onclick="showPage('${pageId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            return false;
+        }
+
+        // Inicialització
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MountainSocial carregat correctament!');
+        });
+    </script>
 </body>
 </html>
